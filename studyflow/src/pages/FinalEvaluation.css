@@ -1,0 +1,232 @@
+.final-eval {
+  min-height: 100vh;
+  padding: 2rem;
+  animation: fadeIn 0.5s ease;
+}
+
+.final-eval-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.final-eval-hero {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.final-eval-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-primary);
+  opacity: 0.06;
+  border-radius: var(--radius-lg);
+}
+
+.final-eval-emoji {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.final-eval-hero h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.final-eval-hero p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.final-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.final-stat-card {
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.final-stat-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 0.75rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.final-stat-icon.purple {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-purple);
+}
+
+.final-stat-icon.green {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-green);
+}
+
+.final-stat-icon.blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-blue);
+}
+
+.final-stat-icon.amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-amber);
+}
+
+.final-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.2rem;
+}
+
+.final-stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.final-topic-table {
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.final-topic-table h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.final-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.final-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.final-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.final-table tr:last-child td {
+  border-bottom: none;
+}
+
+.final-table tr:hover td {
+  background: var(--bg-card);
+}
+
+.final-feedback-section {
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.final-feedback-section h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.final-feedback-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+
+.final-recommendations {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.final-recommendations li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+}
+
+.final-recommendations li svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+  color: var(--accent-cyan);
+}
+
+.final-topic-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.final-insight {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  font-size: 0.85rem;
+}
+
+.final-insight-topic {
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 120px;
+}
+
+.final-insight-verdict {
+  color: var(--text-secondary);
+}
+
+.final-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .final-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .final-table {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .final-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
