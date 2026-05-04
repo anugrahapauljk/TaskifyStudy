@@ -1,0 +1,241 @@
+.session-summary {
+  min-height: 100vh;
+  padding: 2rem;
+  animation: fadeIn 0.5s ease;
+}
+
+.session-summary-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Hero */
+.session-hero {
+  text-align: center;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.session-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-primary);
+  opacity: 0.05;
+  border-radius: var(--radius-lg);
+}
+
+.session-emoji {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.session-hero h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.session-meta {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+/* Stats grid */
+.session-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.session-stat {
+  padding: 1rem;
+  text-align: center;
+}
+
+.session-stat-icon {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 0.5rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.session-stat-icon.purple {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-purple);
+}
+.session-stat-icon.green {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-green);
+}
+.session-stat-icon.blue {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-blue);
+}
+.session-stat-icon.amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-amber);
+}
+
+.session-stat-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 0.15rem;
+}
+
+.session-stat-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Topics table */
+.session-topics {
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.session-topics h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.session-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.session-table th {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.session-table td {
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.session-table tr:last-child td {
+  border-bottom: none;
+}
+
+.session-table tr:hover td {
+  background: var(--bg-card);
+}
+
+/* Feedback */
+.session-feedback {
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.session-feedback h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.session-feedback h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.session-feedback-text {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.session-recommendations {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.session-recommendations li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+}
+
+.session-recommendations li svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+  color: var(--accent-cyan);
+}
+
+/* Empty state */
+.session-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+/* Actions */
+.session-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* Loading */
+.eval-loading {
+  text-align: center;
+  padding: 3rem;
+}
+
+.eval-loading .spinner {
+  margin: 0 auto 1rem;
+}
+
+.eval-loading p {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .session-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .session-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .session-summary {
+    padding: 1rem;
+  }
+}

@@ -97,18 +97,62 @@
   display: none;
 }
 
-.upload-file-info {
+/* Format tags */
+.upload-formats {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.format-tag {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(139, 92, 246, 0.08);
+  color: var(--accent-purple);
+  border-radius: 4px;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+/* Multi-file list */
+.upload-file-list {
   margin-top: 1.5rem;
-  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.upload-file-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.25rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.upload-total-size {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.upload-file-info {
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  animation: fadeIn 0.3s ease;
 }
 
 .upload-file-icon {
-  width: 40px;
-  height: 40px;
-  background: rgba(139, 92, 246, 0.15);
+  width: 36px;
+  height: 36px;
+  background: rgba(139, 92, 246, 0.12);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -126,7 +170,7 @@
 }
 
 .upload-file-name {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -134,7 +178,7 @@
 }
 
 .upload-file-size {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
 }
 
@@ -143,13 +187,16 @@
   cursor: pointer;
   padding: 0.3rem;
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .upload-file-remove:hover {
   color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.08);
 }
 
+/* Progress */
 .upload-progress-section {
   margin-top: 1.5rem;
 }
@@ -177,10 +224,12 @@
   font-size: 0.9rem;
 }
 
+/* Actions */
 .upload-actions {
   margin-top: 1.5rem;
   display: flex;
   justify-content: center;
+  gap: 0.75rem;
 }
 
 .upload-error {

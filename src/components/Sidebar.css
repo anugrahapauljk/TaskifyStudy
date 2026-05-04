@@ -86,19 +86,17 @@
   margin-bottom: 0.25rem;
 }
 
+/* Chat item - enhanced layout */
 .sidebar-chat-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.6rem;
   padding: 0.65rem 0.75rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background var(--transition-fast);
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+  margin-bottom: 2px;
 }
 
 .sidebar-chat-item:hover {
@@ -112,27 +110,63 @@
   border-left: 2px solid var(--accent-purple);
 }
 
-.sidebar-chat-item svg {
+.sidebar-chat-icon {
   flex-shrink: 0;
-  opacity: 0.6;
+  margin-top: 2px;
+  opacity: 0.5;
 }
 
-.sidebar-chat-status {
-  margin-left: auto;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.sidebar-chat-item.active .sidebar-chat-icon,
+.sidebar-chat-item:hover .sidebar-chat-icon {
+  opacity: 0.8;
 }
 
-.sidebar-chat-status.in-progress {
-  background: var(--accent-amber);
+.sidebar-chat-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.sidebar-chat-status.completed {
-  background: var(--accent-green);
+.sidebar-chat-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
 }
 
+.sidebar-chat-meta {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar-status-label {
+  font-weight: 600;
+}
+
+.sidebar-status-label.completed {
+  color: var(--accent-green);
+}
+
+.sidebar-status-label.in-progress {
+  color: var(--accent-amber);
+}
+
+/* Status icons */
+.status-icon.completed {
+  color: var(--accent-green);
+}
+
+.status-icon.in-progress {
+  color: var(--accent-amber);
+}
+
+/* User section */
 .sidebar-user {
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--border-subtle);
@@ -237,6 +271,7 @@
   margin-left: auto;
   color: var(--text-muted);
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .sidebar-chat-item:hover .sidebar-delete-btn {

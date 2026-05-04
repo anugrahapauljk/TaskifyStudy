@@ -9,6 +9,7 @@ import TimerPage from "./pages/TimerPage";
 import QuizPage from "./pages/QuizPage";
 import TopicEvaluation from "./pages/TopicEvaluation";
 import FinalEvaluation from "./pages/FinalEvaluation";
+import SessionSummary from "./pages/SessionSummary";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -41,6 +42,7 @@ function AppRoutes() {
         }
       >
         <Route path="/" element={<UploadPage />} />
+        <Route path="/chat/:chatId" element={<SessionSummary />} />
         <Route path="/chat/:chatId/setup" element={<TopicSetup />} />
         <Route path="/chat/:chatId/timer/:topicIndex" element={<TimerPage />} />
         <Route path="/chat/:chatId/quiz/:topicIndex" element={<QuizPage />} />

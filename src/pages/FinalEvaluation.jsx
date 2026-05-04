@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { getChat } from "../services/firestoreService";
+import { getChat, updateChat } from "../services/firestoreService";
 import { generateFinalEvaluation } from "../services/groqService";
 import {
   Home, Clock, Target, Brain, Award, TrendingUp, Lightbulb, CheckCircle
@@ -30,8 +30,23 @@ export default function FinalEvaluation() {
       }
       setChat(data);
 
-      const evalResult = await generateFinalEvaluation(data.results || []);
-      setEvaluation(evalResult);
+      // If we already have a saved evaluation, use it
+      if (data.finalEvaluation) {
+        setEvaluation(data.finalEvaluation);
+      } else {
+        const evalResult = await generateFinalEvaluation(data.results || []);
+        setEvaluation(evalResult);
+
+        // Save evaluation and mark session as completed
+        try {
+          await updateChat(user.uid, chatId, {
+            finalEvaluation: evalResult,
+            status: "completed",
+          });
+        } catch (saveErr) {
+          console.error("Failed to save evaluation:", saveErr);
+        }
+      }
     } catch (err) {
       console.error(err);
       setEvaluation({
