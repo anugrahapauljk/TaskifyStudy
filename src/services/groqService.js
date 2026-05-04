@@ -1,6 +1,4 @@
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const MODEL = "llama-3.1-8b-instant";
+import { GROQ_API_URL, API_KEY, MODEL } from "./config";
 
 /**
  * Sanitize and parse JSON from LLM response.
