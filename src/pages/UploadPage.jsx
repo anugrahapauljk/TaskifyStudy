@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { extractTextFromMultipleFiles } from "../services/ocrService";
-import { organizeTopics } from "../services/groqService";
+import { condenseText, organizeTopics } from "../services/groqService";
 import { createChat } from "../services/firestoreService";
 import { Upload, FileText, X, Sparkles, Image, FileSpreadsheet } from "lucide-react";
 import "./UploadPage.css";
@@ -108,10 +108,13 @@ export default function UploadPage() {
         return;
       }
 
-      // Step 2: Organize into topics
+      // Step 2: Condense text — extract only main topics & definitions
       setStep("organizing");
       setProgress(0);
-      const topics = await organizeTopics(rawText);
+      const condensed = await condenseText(rawText);
+
+      // Step 3: Organize condensed text into topics
+      const topics = await organizeTopics(condensed);
 
       if (!topics || topics.length === 0) {
         setError(

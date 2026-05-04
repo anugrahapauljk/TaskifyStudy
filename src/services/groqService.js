@@ -1,6 +1,40 @@
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "llama-3.1-8b-instant";
+
+/**
+ * Sanitize and parse JSON from LLM response.
+ * Handles common issues: markdown fences, trailing commas, unescaped chars.
+ */
+function parseJSONSafe(raw) {
+  let text = raw.trim();
+
+  // Remove markdown code fences if present
+  text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+
+  // Remove trailing commas before } or ]
+  text = text.replace(/,\s*([}\]])/g, "$1");
+
+  // Try direct parse first
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    // Try to fix common escaping issues in string values
+    // Replace unescaped newlines inside strings
+    text = text.replace(/(?<=:\s*")((?:[^"\\]|\\.)*)(?=")/g, (match) => {
+      return match
+        .replace(/(?<!\\)\n/g, "\\n")
+        .replace(/(?<!\\)\r/g, "\\r")
+        .replace(/(?<!\\)\t/g, "\\t");
+    });
+
+    try {
+      return JSON.parse(text);
+    } catch (e2) {
+      throw new Error(`Failed to parse JSON response: ${e2.message}\nRaw: ${raw.slice(0, 500)}`);
+    }
+  }
+}
 
 async function callGroq(messages, temperature = 0.7, maxTokens = 4096) {
   const response = await fetch(GROQ_API_URL, {
@@ -27,19 +61,73 @@ async function callGroq(messages, temperature = 0.7, maxTokens = 4096) {
   return data.choices[0].message.content;
 }
 
-export async function organizeTopics(rawText) {
-  const truncated = rawText.slice(0, 12000);
+/**
+ * Condense raw extracted text to only main topics and definitions.
+ * Ignores examples, code, and repetition. Keeps output under 200 words.
+ */
+export async function condenseText(rawText) {
+  const truncated = rawText.slice(0, 4000);
+
+  const escapedText = truncated
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, " ")
+    .replace(/\r/g, "")
+    .replace(/\t/g, " ");
+
   const messages = [
     {
       role: "system",
-      content: `You are a study material organizer. Given raw text extracted from a document, organize it into distinct topic-wise sections. Preserve ALL information — do not summarize or remove any content, just restructure it logically.
+      content: `You are a text summarizer for study materials. Extract ONLY the main topics and their key definitions from the given text.
 
-Return a JSON object with this exact structure:
+Rules:
+- Extract ONLY main topics and definitions
+- Ignore examples, code snippets, and repetitive content
+- Keep the total output under 200 words
+- Use clear, concise language
+- Preserve technical terms and key concepts accurately
+
+You MUST return a valid JSON object:
+{
+  "condensed": "The condensed text with only main topics and definitions, under 200 words"
+}`,
+    },
+    {
+      role: "user",
+      content: `Extract only the main topics and definitions from this text. Ignore examples, code, and repetition. Keep output under 200 words:\n\n${escapedText}`,
+    },
+  ];
+
+  const result = await callGroq(messages, 0.2, 512);
+  const parsed = parseJSONSafe(result);
+  return parsed.condensed || rawText.slice(0, 2000);
+}
+
+export async function organizeTopics(condensedText) {
+  // Pre-escape the input text to avoid breaking JSON
+  const escapedText = condensedText
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, " ")
+    .replace(/\r/g, "")
+    .replace(/\t/g, " ");
+
+  const messages = [
+    {
+      role: "system",
+      content: `You are a study material organizer. Given condensed study material (main topics and definitions only), organize it into distinct topic-wise sections.
+
+You MUST return a valid JSON object. Ensure all string values are properly escaped:
+- Use \\n for newlines within strings
+- Use \\" for quotes within strings  
+- Do NOT use unescaped special characters in string values
+
+Return this exact JSON structure:
 {
   "topics": [
     {
       "title": "Topic Title",
-      "content": "Full content for this topic, preserving all details from the original text"
+      "content": "Key definitions and concepts for this topic. Use plain text only."
     }
   ]
 }
@@ -48,31 +136,39 @@ Rules:
 - Create between 2 and 10 topics depending on the material
 - Each topic should be a coherent, self-contained section
 - Topic titles should be clear and descriptive
-- Preserve all original information without summarizing`,
+- Focus on definitions, key concepts, and core ideas
+- All string values must be valid JSON strings with proper escaping`,
     },
     {
       role: "user",
-      content: `Organize this study material into topics:\n\n${truncated}`,
+      content: `Organize this condensed study material into topics:\n\n${escapedText}`,
     },
   ];
 
-  const result = await callGroq(messages, 0.3, 4096);
-  try {
-    const parsed = JSON.parse(result);
-    return parsed.topics || [];
-  } catch {
-    throw new Error("Failed to parse topic organization response");
-  }
+  const result = await callGroq(messages, 0.3, 1024);
+  const parsed = parseJSONSafe(result);
+  return parsed.topics || [];
 }
 
 export async function generateQuiz(topicTitle, topicContent, questionCount) {
   const count = Math.min(Math.max(questionCount, 1), 50);
+
+  const safeTitle = topicTitle.replace(/"/g, '\\"');
+  const safeContent = topicContent
+    .slice(0, 8000)
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, " ")
+    .replace(/\r/g, "");
+
   const messages = [
     {
       role: "system",
       content: `You are a quiz generator for educational assessment. Generate multiple-choice questions that test understanding of the given topic material. Questions should range from basic recall to deeper comprehension.
 
-Return a JSON object with this exact structure:
+You MUST return a valid JSON object with all string values properly escaped.
+
+Return this exact JSON structure:
 {
   "questions": [
     {
@@ -89,21 +185,18 @@ Rules:
 - correctAnswer is the 0-based index of the correct option
 - Each question must have exactly 4 options
 - Questions should test genuine understanding, not just memorization
-- Explanations should be concise but helpful`,
+- Explanations should be concise but helpful
+- All string values must be valid JSON strings — escape quotes and special characters`,
     },
     {
       role: "user",
-      content: `Generate ${count} quiz questions for the topic "${topicTitle}":\n\n${topicContent.slice(0, 8000)}`,
+      content: `Generate ${count} quiz questions for the topic "${safeTitle}":\n\n${safeContent}`,
     },
   ];
 
-  const result = await callGroq(messages, 0.5, 4096);
-  try {
-    const parsed = JSON.parse(result);
-    return parsed.questions || [];
-  } catch {
-    throw new Error("Failed to parse quiz generation response");
-  }
+  const result = await callGroq(messages, 0.5, 2048);
+  const parsed = parseJSONSafe(result);
+  return parsed.questions || [];
 }
 
 export async function evaluateTopic(topicTitle, score, total, answers) {
@@ -118,13 +211,17 @@ export async function evaluateTopic(topicTitle, score, total, answers) {
       role: "system",
       content: `You are an educational evaluator. Analyze the student's quiz performance and provide feedback.
 
-Return a JSON object with this exact structure:
+You MUST return a valid JSON object with all string values properly escaped.
+
+Return this exact JSON structure:
 {
   "understanding": "strong" | "can_improve" | "weak",
   "feedback": "Detailed feedback paragraph about the student's understanding",
   "strengths": ["Strength 1", "Strength 2"],
   "improvements": ["Area to improve 1", "Area to improve 2"]
-}`,
+}
+
+All string values must be valid JSON strings.`,
     },
     {
       role: "user",
@@ -134,9 +231,9 @@ ${wrongAnswers ? `\nIncorrect answers:\n${wrongAnswers}` : "All answers were cor
     },
   ];
 
-  const result = await callGroq(messages, 0.4, 1024);
+  const result = await callGroq(messages, 0.4, 512);
   try {
-    return JSON.parse(result);
+    return parseJSONSafe(result);
   } catch {
     return {
       understanding: percentage >= 70 ? "strong" : percentage >= 40 ? "can_improve" : "weak",
@@ -161,7 +258,9 @@ export async function generateFinalEvaluation(results) {
       role: "system",
       content: `You are an educational evaluator providing a final assessment. Analyze the student's overall performance across all topics.
 
-Return a JSON object with this exact structure:
+You MUST return a valid JSON object with all string values properly escaped.
+
+Return this exact JSON structure:
 {
   "overallUnderstanding": "strong" | "can_improve" | "weak",
   "overallFeedback": "Comprehensive feedback paragraph",
@@ -172,7 +271,9 @@ Return a JSON object with this exact structure:
       "verdict": "Brief one-line insight"
     }
   ]
-}`,
+}
+
+All string values must be valid JSON strings.`,
     },
     {
       role: "user",
@@ -180,9 +281,9 @@ Return a JSON object with this exact structure:
     },
   ];
 
-  const result = await callGroq(messages, 0.4, 2048);
+  const result = await callGroq(messages, 0.4, 1024);
   try {
-    return JSON.parse(result);
+    return parseJSONSafe(result);
   } catch {
     return {
       overallUnderstanding: "can_improve",

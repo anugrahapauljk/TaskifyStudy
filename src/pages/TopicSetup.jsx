@@ -175,8 +175,8 @@ export default function TopicSetup() {
         alert("Each topic needs a title.");
         return;
       }
-      if (!t.timerMinutes || t.timerMinutes < 1) {
-        alert("Each topic needs at least 1 minute.");
+      if (!t.timerMinutes || t.timerMinutes < 1 || t.timerMinutes > 60) {
+        alert("Timer must be between 1 and 60 minutes.");
         return;
       }
       if (!t.questionCount || t.questionCount < 1 || t.questionCount > 50) {
@@ -362,7 +362,7 @@ export default function TopicSetup() {
                     <input
                       type="number"
                       min="1"
-                      max="120"
+                      max="60"
                       value={topic.timerMinutes}
                       onChange={(e) =>
                         updateTopic(
