@@ -5,6 +5,19 @@ import JSZip from "jszip";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
+const FALLBACK_MESSAGE = "Text could not be extracted clearly";
+
+/**
+ * Safely clean OCR output text.
+ * Returns cleaned string or fallback message if extraction failed.
+ */
+function cleanOcrText(text) {
+  const cleaned = typeof text === "string"
+    ? text.replace(/\n+/g, " ").replace(/\s+/g, " ").trim()
+    : "";
+  return cleaned.length >= 20 ? cleaned : FALLBACK_MESSAGE;
+}
+
 export async function extractTextFromImage(file, onProgress) {
   const worker = await createWorker("eng", 1, {
     logger: (m) => {
@@ -14,11 +27,11 @@ export async function extractTextFromImage(file, onProgress) {
     },
   });
 
-  const {
-    data: { text },
-  } = await worker.recognize(file);
+  const result = await worker.recognize(file);
   await worker.terminate();
-  return text;
+
+  const text = result?.data?.text;
+  return cleanOcrText(text);
 }
 
 export async function extractTextFromPDF(file, onProgress) {
@@ -49,7 +62,9 @@ export async function extractTextFromPDF(file, onProgress) {
         canvas.toBlob(resolve, "image/png")
       );
       const ocrText = await extractTextFromImage(blob, null);
-      fullText += `\n--- Page ${i} ---\n` + ocrText;
+      if (ocrText && ocrText !== FALLBACK_MESSAGE) {
+        fullText += `\n--- Page ${i} ---\n` + ocrText;
+      }
     }
 
     if (onProgress) {
@@ -156,8 +171,11 @@ export async function extractTextFromMultipleFiles(files, onProgress) {
       }
     };
 
-    const text = await extractText(file, fileProgress);
-    if (text && text.trim()) {
+    const rawText = await extractText(file, fileProgress);
+    const text = typeof rawText === "string"
+      ? rawText.replace(/\n+/g, " ").replace(/\s+/g, " ").trim()
+      : "";
+    if (text && text.length >= 20 && text !== FALLBACK_MESSAGE) {
       results.push({ fileName: file.name, text });
     }
 
