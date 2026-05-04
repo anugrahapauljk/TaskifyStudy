@@ -95,12 +95,12 @@ export default function UploadPage() {
     setError("");
 
     try {
-      // Step 1: Extract text from all files
+      // Step 1: Extract text from all files (returns per-file results)
       setStep("extracting");
       setProgress(0);
-      const rawText = await extractTextFromMultipleFiles(files, setProgress);
+      const fileResults = await extractTextFromMultipleFiles(files, setProgress);
 
-      if (!rawText || rawText.trim().length < 20) {
+      if (!fileResults || fileResults.length === 0) {
         setError(
           "Could not extract enough text from the file(s). Try clearer images or different documents."
         );
@@ -108,15 +108,32 @@ export default function UploadPage() {
         return;
       }
 
-      // Step 2: Condense text — extract only main topics & definitions
+      // Step 2: For each file, condense text and organize into topics
       setStep("organizing");
       setProgress(0);
-      const condensed = await condenseText(rawText);
+      let allTopics = [];
 
-      // Step 3: Organize condensed text into topics
-      const topics = await organizeTopics(condensed);
+      for (let i = 0; i < fileResults.length; i++) {
+        const { fileName, text } = fileResults[i];
 
-      if (!topics || topics.length === 0) {
+        if (!text || text.trim().length < 20) continue;
+
+        const condensed = await condenseText(text);
+        const topics = await organizeTopics(condensed);
+
+        if (topics && topics.length > 0) {
+          // Tag each topic with its source file name
+          const taggedTopics = topics.map((t) => ({
+            ...t,
+            sourceFile: fileName,
+          }));
+          allTopics = [...allTopics, ...taggedTopics];
+        }
+
+        setProgress(Math.floor(((i + 1) / fileResults.length) * 100));
+      }
+
+      if (allTopics.length === 0) {
         setError(
           "Could not organize topics from the extracted text. Please try again."
         );
@@ -125,7 +142,7 @@ export default function UploadPage() {
       }
 
       // Step 3: Create chat in Firestore
-      const topicsWithDefaults = topics.map((t) => ({
+      const topicsWithDefaults = allTopics.map((t) => ({
         ...t,
         timerMinutes: 10,
         questionCount: 5,
@@ -137,10 +154,13 @@ export default function UploadPage() {
           ? files[0].name.replace(/\.[^/.]+$/, "")
           : `${files[0].name.replace(/\.[^/.]+$/, "")} +${files.length - 1} more`;
 
+      // Store combined raw text for reference
+      const combinedText = fileResults.map((r) => r.text).join("\n\n");
+
       const chatId = await createChat(user.uid, {
         title: sessionTitle,
         fileNames: fileNames,
-        extractedText: rawText.slice(0, 50000),
+        extractedText: combinedText.slice(0, 50000),
         topics: topicsWithDefaults,
       });
 

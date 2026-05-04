@@ -118,7 +118,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, refreshKey }) {
           <div className="sidebar-logo">
             <BookOpen size={20} />
           </div>
-          <span className="sidebar-brand">StudyFlow</span>
+          <span className="sidebar-brand">TaskifyStudy</span>
         </div>
 
         <button

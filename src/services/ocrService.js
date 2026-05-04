@@ -137,10 +137,11 @@ export async function extractText(file, onProgress) {
 }
 
 /**
- * Extract text from multiple files and combine them.
+ * Extract text from multiple files individually.
+ * Returns an array of { fileName, text } objects — one per file.
  */
 export async function extractTextFromMultipleFiles(files, onProgress) {
-  let combinedText = "";
+  const results = [];
   const totalFiles = files.length;
 
   for (let i = 0; i < totalFiles; i++) {
@@ -157,7 +158,7 @@ export async function extractTextFromMultipleFiles(files, onProgress) {
 
     const text = await extractText(file, fileProgress);
     if (text && text.trim()) {
-      combinedText += `\n\n=== File: ${file.name} ===\n` + text;
+      results.push({ fileName: file.name, text });
     }
 
     if (onProgress) {
@@ -165,5 +166,5 @@ export async function extractTextFromMultipleFiles(files, onProgress) {
     }
   }
 
-  return combinedText;
+  return results;
 }

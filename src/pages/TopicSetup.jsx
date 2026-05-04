@@ -15,6 +15,7 @@ import {
   ChevronUp,
   ChevronDown,
   RotateCcw,
+  FileText,
 } from "lucide-react";
 import "./TopicSetup.css";
 
@@ -240,161 +241,203 @@ export default function TopicSetup() {
         </div>
 
         <div className="topic-list">
-          {topics.map((topic, idx) => (
-            <div
-              key={idx}
-              className={`topic-card glass ${
-                editingIndex === idx ? "editing" : ""
-              } ${expandedIndex === idx ? "expanded" : ""}`}
-            >
-              {/* Reorder controls */}
-              <div className="topic-reorder">
-                <button
-                  className="reorder-btn"
-                  onClick={() => moveTopic(idx, -1)}
-                  disabled={idx === 0}
-                  title="Move up"
-                >
-                  <ChevronUp size={14} />
-                </button>
-                <GripVertical size={14} className="grip-icon" />
-                <button
-                  className="reorder-btn"
-                  onClick={() => moveTopic(idx, 1)}
-                  disabled={idx === topics.length - 1}
-                  title="Move down"
-                >
-                  <ChevronDown size={14} />
-                </button>
-              </div>
+          {(() => {
+            // Get unique source files (preserve order)
+            const sourceFiles = [];
+            topics.forEach((t) => {
+              if (t.sourceFile && !sourceFiles.includes(t.sourceFile)) {
+                sourceFiles.push(t.sourceFile);
+              }
+            });
+            const hasMultipleSources = sourceFiles.length > 1;
 
-              <div className="topic-card-main">
-                {/* Header */}
-                <div className="topic-card-header">
-                  <div className="topic-number">{idx + 1}</div>
+            // Helper to render a single topic card
+            const renderTopicCard = (topic, idx) => (
+              <div
+                key={idx}
+                className={`topic-card glass ${
+                  editingIndex === idx ? "editing" : ""
+                } ${expandedIndex === idx ? "expanded" : ""}`}
+              >
+                {/* Reorder controls */}
+                <div className="topic-reorder">
+                  <button
+                    className="reorder-btn"
+                    onClick={() => moveTopic(idx, -1)}
+                    disabled={idx === 0}
+                    title="Move up"
+                  >
+                    <ChevronUp size={14} />
+                  </button>
+                  <GripVertical size={14} className="grip-icon" />
+                  <button
+                    className="reorder-btn"
+                    onClick={() => moveTopic(idx, 1)}
+                    disabled={idx === topics.length - 1}
+                    title="Move down"
+                  >
+                    <ChevronDown size={14} />
+                  </button>
+                </div>
+
+                <div className="topic-card-main">
+                  {/* Header */}
+                  <div className="topic-card-header">
+                    <div className="topic-number">{idx + 1}</div>
+                    {editingIndex === idx ? (
+                      <input
+                        className="topic-title-input"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        placeholder="Topic title..."
+                        autoFocus
+                        id={`topic-title-input-${idx}`}
+                      />
+                    ) : (
+                      <div
+                        className="topic-title clickable"
+                        onClick={() => toggleExpand(idx)}
+                      >
+                        {topic.title}
+                      </div>
+                    )}
+                    <div className="topic-card-actions">
+                      {editingIndex === idx ? (
+                        <>
+                          <button
+                            className="topic-action-btn save"
+                            onClick={saveEditing}
+                            title="Save changes"
+                          >
+                            <Check size={15} />
+                          </button>
+                          <button
+                            className="topic-action-btn cancel"
+                            onClick={cancelEditing}
+                            title="Cancel editing"
+                          >
+                            <X size={15} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="topic-action-btn edit"
+                            onClick={() => startEditing(idx)}
+                            title="Edit topic"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            className="topic-action-btn delete"
+                            onClick={() => removeTopic(idx)}
+                            title="Remove topic"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Content */}
                   {editingIndex === idx ? (
-                    <input
-                      className="topic-title-input"
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                      placeholder="Topic title..."
-                      autoFocus
-                      id={`topic-title-input-${idx}`}
+                    <textarea
+                      className="topic-content-edit"
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      placeholder="Topic content / study notes..."
+                      rows={6}
+                      id={`topic-content-input-${idx}`}
                     />
                   ) : (
                     <div
-                      className="topic-title clickable"
+                      className={`topic-content-preview ${
+                        expandedIndex === idx ? "expanded" : ""
+                      }`}
                       onClick={() => toggleExpand(idx)}
                     >
-                      {topic.title}
+                      {topic.content || (
+                        <span className="empty-content">
+                          No content — click edit to add study notes
+                        </span>
+                      )}
                     </div>
                   )}
-                  <div className="topic-card-actions">
-                    {editingIndex === idx ? (
-                      <>
-                        <button
-                          className="topic-action-btn save"
-                          onClick={saveEditing}
-                          title="Save changes"
-                        >
-                          <Check size={15} />
-                        </button>
-                        <button
-                          className="topic-action-btn cancel"
-                          onClick={cancelEditing}
-                          title="Cancel editing"
-                        >
-                          <X size={15} />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          className="topic-action-btn edit"
-                          onClick={() => startEditing(idx)}
-                          title="Edit topic"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          className="topic-action-btn delete"
-                          onClick={() => removeTopic(idx)}
-                          title="Remove topic"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
 
-                {/* Content */}
-                {editingIndex === idx ? (
-                  <textarea
-                    className="topic-content-edit"
-                    value={editContent}
-                    onChange={(e) => setEditContent(e.target.value)}
-                    placeholder="Topic content / study notes..."
-                    rows={6}
-                    id={`topic-content-input-${idx}`}
-                  />
-                ) : (
-                  <div
-                    className={`topic-content-preview ${
-                      expandedIndex === idx ? "expanded" : ""
-                    }`}
-                    onClick={() => toggleExpand(idx)}
-                  >
-                    {topic.content || (
-                      <span className="empty-content">
-                        No content — click edit to add study notes
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* Controls */}
-                <div className="topic-controls">
-                  <div className="topic-control">
-                    <label>
-                      <Clock size={12} /> Timer (minutes)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="60"
-                      value={topic.timerMinutes}
-                      onChange={(e) =>
-                        updateTopic(
-                          idx,
-                          "timerMinutes",
-                          parseInt(e.target.value) || 1
-                        )
-                      }
-                    />
-                  </div>
-                  <div className="topic-control">
-                    <label>
-                      <HelpCircle size={12} /> Questions (1–50)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="50"
-                      value={topic.questionCount}
-                      onChange={(e) =>
-                        updateTopic(
-                          idx,
-                          "questionCount",
-                          parseInt(e.target.value) || 5
-                        )
-                      }
-                    />
+                  {/* Controls */}
+                  <div className="topic-controls">
+                    <div className="topic-control">
+                      <label>
+                        <Clock size={12} /> Timer (minutes)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="60"
+                        value={topic.timerMinutes}
+                        onChange={(e) =>
+                          updateTopic(
+                            idx,
+                            "timerMinutes",
+                            parseInt(e.target.value) || 1
+                          )
+                        }
+                      />
+                    </div>
+                    <div className="topic-control">
+                      <label>
+                        <HelpCircle size={12} /> Questions (1–50)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="50"
+                        value={topic.questionCount}
+                        onChange={(e) =>
+                          updateTopic(
+                            idx,
+                            "questionCount",
+                            parseInt(e.target.value) || 5
+                          )
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+
+            // If multiple source files, group topics under file headers
+            if (hasMultipleSources) {
+              return sourceFiles.map((fileName) => {
+                const fileTopics = topics
+                  .map((t, idx) => ({ topic: t, globalIdx: idx }))
+                  .filter((item) => item.topic.sourceFile === fileName);
+
+                return (
+                  <div key={fileName} className="source-file-group">
+                    <div className="source-file-header glass">
+                      <FileText size={16} />
+                      <span className="source-file-name">
+                        {fileName.replace(/\.[^/.]+$/, "")}
+                      </span>
+                      <span className="source-file-count">
+                        {fileTopics.length} topic
+                        {fileTopics.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    {fileTopics.map(({ topic, globalIdx }) =>
+                      renderTopicCard(topic, globalIdx)
+                    )}
+                  </div>
+                );
+              });
+            }
+
+            // Single file or no sourceFile — render flat
+            return topics.map((topic, idx) => renderTopicCard(topic, idx));
+          })()}
         </div>
 
         {topics.length === 0 && (

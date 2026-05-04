@@ -38,7 +38,7 @@ export default function LoginPage() {
         <div className="login-icon">
           <BookOpen size={36} />
         </div>
-        <h1 className="login-title">StudyFlow</h1>
+        <h1 className="login-title">TaskifyStudy</h1>
         <p className="login-subtitle">
           AI-powered study sessions with smart quizzes and real-time evaluation
         </p>

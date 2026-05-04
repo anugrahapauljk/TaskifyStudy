@@ -93,6 +93,47 @@
   margin-bottom: 2rem;
 }
 
+/* Source file grouping (multi-document) */
+.source-file-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.source-file-group + .source-file-group {
+  margin-top: 0.5rem;
+}
+
+.source-file-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.1rem;
+  border-left: 3px solid var(--accent-primary);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.source-file-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-file-count {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(139, 92, 246, 0.08);
+  padding: 0.2rem 0.55rem;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
 .topic-card {
   display: flex;
   gap: 0.5rem;
